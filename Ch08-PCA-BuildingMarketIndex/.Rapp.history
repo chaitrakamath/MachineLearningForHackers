@@ -1,0 +1,403 @@
+getwd()
+setwd('/Users/admin/Documents/GitHubCode/MLForHackersCode/Ch08-PCA-BuildingMarketIndex')
+getwd()
+library(lubridate)
+library(reshape)
+prices <- read.csv('data/stock_prices.csv')
+str(prices)
+prices <- transform(prices, Date = ymd(Date))
+str(prices)
+data.stock.matrix <- cast(prices, Date ~ Stock, value = 'Close')
+table(is.na(prices))
+table(prices$Close == '')
+table(prices$Close == ' ')
+table(is.na(prices$Close))
+summary(prices$Close)
+unique(prices$Stock)
+prices[prices$Stock == 'DDR', ]
+subset(prices, Date != ymd('2002-02-01'))
+subset(prices, Date == ymd('2002-02-01'))
+is.na(data.stock.matrix)
+table(is.na(data.stock.matrix))
+data.stock.matrix[is.na(data.stock.matrix)]
+data.stock.matrix[is.na(data.stock.matrix),]
+data.stock.matrix[is.na(data.stock.matrix$Close),]
+data.stock.matrix[is.na(data.stock.matrix),]
+data.stock.matrix[any(is.na(data.stock.matrix)),]
+data.stock.matrix[all(is.na(data.stock.matrix)),]
+data.stock.matrix[is.na(data.stock.matrix),]
+data.stock.matrix[apply(data.stock.matrix, 1, function(y) !all(is.na(y)))]
+data.stock.matrix[apply(data.stock.matrix, 1, function(y) !all(is.na(y))),]
+data.stock.matrix[apply(data.stock.matrix, 1, function(y) any(is.na(y))),]
+data.stock.matrix[, c('DDR')]
+is.na(data.stock.matrix[, c('DDR')])
+table(is.na(data.stock.matrix[, c('DDR')]))
+data.stock.matrix[is.na(data.stock.matrix[, c('DDR')],]
+data.stock.matrix[is.na(data.stock.matrix[, c('DDR')]),]
+prices <- subset(prices, (Date %in% c(ymd('2002-02-01', '2005-06-22'))))
+data.stock.matrix <- cast(prices, Date ~ Stock, value = 'Close')
+data.stock.matrix[apply(data.stock.matrix, 1, function(y) any(is.na(y))),]
+prices <- read.csv('data/stock_prices.csv')#
+str(prices)
+#convert data type of Date column from factor to Date#
+prices <- transform(prices, Date = ymd(Date))#
+str(prices)
+prices <- subset(prices, !(Date %in% c(ymd('2002-02-01', '2005-06-22'))))
+data.stock.matrix <- cast(prices, Date ~ Stock, value = 'Close')
+data.stock.matrix[apply(data.stock.matrix, 1, function(y) any(is.na(y))),]
+correlationMat <- cor(data.stock.matrix[, 2:ncol(data.stock.matrix)])
+correlations <- as.numeric(correlationMat)
+ggplot(data.frame(Correlation = correlations), aes(x = Correlation, fill = 1)) + geom_density() + opts(legend.position = 'none')
+library(ggplot)
+library(ggplot2)
+ggplot(data.frame(Correlation = correlations), aes(x = Correlation, fill = 1)) + geom_density() + opts(legend.position = 'none')
+ggplot(data.frame(Correlation = correlations), aes(x = Correlation, fill = 1)) + geom_density() + theme(legend.position = 'none')
+pca <- princomp(data.stock.matrix[, 2:ncol(data.stock.matrix)])
+print (pca)
+principal.comp <- pca$loadings[, 1]
+principal.comp
+sort(principal.comp, decreasing = TRUE)
+loadings <- as.numeric(principal.comp)
+ggplot(data.frame(Loading = loadings), aes(x = Loading, fill = 1)) + geom_density() + theme(legend.position = 'none')
+market.index <- predict(pca)
+market.index
+str(market.index)
+market.index <- predict(pca)[, 1]
+str(market.index)
+dji.prices <- read.csv('data/DJI.csv')
+str(dji.prices)
+dji.prices <- transform(dji.prices, Date = ymd(Date))
+str(dji.prices)
+summary(prices$Date)
+dji.prices <- subset(dji.prices, Date > ymd('2002-01-01'))
+dji.prices <- subset(dji.prices, !(Date %in% c(ymd('2002-02-01', '2005-06-22'))))
+dji.prices$Close <- rev(dji.prices$Close)
+dji.prices$Date <- rev(dji.prices$Date)
+#use DJI data to evaluate accuracy of pca prediction#
+dji.prices <- read.csv('data/DJI.csv')#
+str(dji.prices)#
+dji.prices <- transform(dji.prices, Date = ymd(Date))#
+str(dji.prices)#
+#
+#subset DJI data set to keep the date range we are interested in#
+dji.prices <- subset(dji.prices, Date > ymd('2002-01-01'))#
+dji.prices <- subset(dji.prices, !(Date %in% c(ymd('2002-02-01', '2005-06-22'))))#
+#
+#reverse closing prices and dates in dji.prices dataframe#
+dji <- rev(dji.prices$Close)#
+dates <- rev(dji.prices$Date)
+comparison <- data.frame(Date = dates, MarketIndex = market.index, DJI = dji)
+ggplot(comparison, aes(x = market.index, y = DJI)) + geom_point() + geom_smooth(method = 'lm', se = FALSE)
+ggplot(comparison, aes(x = market.index, y = DJI)) + geom_point() + geom_smooth(method = 'lm', se = FALSE)
+summary(market.index)
+summary(dji)
+comparison <- transform(comparison, MarketIndex = -1 * MarketIndex)
+ggplot(comparison, aes(x = market.index, y = DJI)) + geom_point() + geom_smooth(method = 'lm', se = FALSE)
+ggplot(comparison, aes(x = MarketIndex, y = DJI)) + geom_point() + geom_smooth(method = 'lm', se = FALSE)
+library('ggplot2')#
+#
+# First code snippet#
+prices <- read.csv(file.path('data', 'stock_prices.csv'),#
+                   stringsAsFactors = FALSE)#
+#
+prices[1, ]#
+# Date Stock Close#
+#1 2011-05-25 DTE 51.12#
+#
+# Second code snippet#
+library('lubridate')#
+#
+prices <- transform(prices, Date = ymd(Date))#
+#
+# Third code snippet#
+library('reshape')#
+#
+date.stock.matrix <- cast(prices, Date ~ Stock, value = 'Close')#
+#
+# Fourth code snippet#
+prices <- subset(prices, Date != ymd('2002-02-01'))#
+prices <- subset(prices, Stock != 'DDR')#
+#
+date.stock.matrix <- cast(prices, Date ~ Stock, value = 'Close')#
+#
+# Fifth code snippet#
+cor.matrix <- cor(date.stock.matrix[, 2:ncol(date.stock.matrix)])#
+correlations <- as.numeric(cor.matrix)#
+#
+ggplot(data.frame(Correlation = correlations),#
+  aes(x = Correlation, fill = 1)) +#
+  geom_density() +#
+  theme(legend.position = 'none')#
+#
+# Sixth code snippet#
+pca <- princomp(date.stock.matrix[, 2:ncol(date.stock.matrix)])#
+#
+# Seventh code snippet#
+#Call:#
+#princomp(x = date.stock.matrix[, 2:ncol(date.stock.matrix)])#
+#Standard deviations:#
+#Comp.1 Comp.2 Comp.3 Comp.4 Comp.5 Comp.6 Comp.7#
+#29.1001249 20.4403404 12.6726924 11.4636450 8.4963820 8.1969345 5.5438308#
+#Comp.8 Comp.9 Comp.10 Comp.11 Comp.12 Comp.13 Comp.14#
+#5.1300931 4.7786752 4.2575099 3.3050931 2.6197715 2.4986181 2.1746125#
+#Comp.15 Comp.16 Comp.17 Comp.18 Comp.19 Comp.20 Comp.21#
+#1.9469475 1.8706240 1.6984043 1.6344116 1.2327471 1.1280913 0.9877634#
+#Comp.22 Comp.23 Comp.24#
+#0.8583681 0.7390626 0.4347983#
+#24 variables and 2366 observations.#
+#
+# Eighth code snippet#
+principal.component <- pca$loadings[, 1]#
+#
+# Ninth code snippet#
+loadings <- as.numeric(principal.component)#
+#
+ggplot(data.frame(Loading = loadings),#
+  aes(x = Loading, fill = 1)) +#
+  geom_density() +#
+  theme(legend.position = 'none')#
+#
+# Tenth code snippet#
+market.index <- predict(pca)[, 1]#
+#
+# Eleventh code snippet#
+dji.prices <- read.csv(file.path('data', 'DJI.csv'),#
+                       stringsAsFactors = FALSE)#
+dji.prices <- transform(dji.prices, Date = ymd(Date))#
+#
+# Twelfth code snippet#
+dji.prices <- subset(dji.prices, Date > ymd('2001-12-31'))#
+dji.prices <- subset(dji.prices, Date != ymd('2002-02-01'))#
+#
+# Thirteenth code snippet#
+dji <- with(dji.prices, rev(Close))#
+dates <- with(dji.prices, rev(Date))#
+#
+# Fourteenth code snippet#
+comparison <- data.frame(Date = dates,#
+                         MarketIndex = market.index,#
+                         DJI = dji)#
+#
+ggplot(comparison, aes(x = MarketIndex, y = DJI)) +#
+  geom_point() +#
+  geom_smooth(method = 'lm', se = FALSE)#
+#
+# Fifteenth code snippet#
+comparison <- transform(comparison, MarketIndex = -1 * MarketIndex)#
+#
+# Sixteenth code snippet#
+ggplot(comparison, aes(x = MarketIndex, y = DJI)) +#
+  geom_point() +#
+  geom_smooth(method = 'lm', se = FALSE)
+summary(market.index)
+str(dji.prices)
+summary(dji.prices$Adj.Close)
+summary(dji.prices$Close)
+str(comparison)
+alt.comparison <- melt(comparison, id.vars = 'Date')
+str(alt.comparison)
+str(alt.comparison$variable)
+levels(alt.comparison$variable)
+names(alt.comparison) <- c('Date', 'Index', 'Price')
+ggplot(alt.comparison, aes(x = Date, y = Price, group = Index, color = Index)) + geom_point() + geom_line()
+comparison$MarketIndex <- -scale(comparison$MarketIndex)
+comparison$DJI <- scale(comparison$DJI)
+alt.comparison <- melt(comparison, id.vars = 'Date')
+names(alt.comparison) <- c('Date', 'Index', 'Price')
+ggplot(alt.comparison, aes(x = Date, y = Price, group = Index, color = Index)) + geom_point() + geom_line()
+ggplot(alt.comparison, aes(x = Date, y = Price, group = Index, color = Index)) + geom_point() + geom_line()
+library('ggplot2')#
+#
+# First code snippet#
+prices <- read.csv(file.path('data', 'stock_prices.csv'),#
+                   stringsAsFactors = FALSE)#
+#
+prices[1, ]#
+# Date Stock Close#
+#1 2011-05-25 DTE 51.12#
+#
+# Second code snippet#
+library('lubridate')#
+#
+prices <- transform(prices, Date = ymd(Date))#
+#
+# Third code snippet#
+library('reshape')#
+#
+date.stock.matrix <- cast(prices, Date ~ Stock, value = 'Close')#
+#
+# Fourth code snippet#
+prices <- subset(prices, Date != ymd('2002-02-01'))#
+prices <- subset(prices, Stock != 'DDR')#
+#
+date.stock.matrix <- cast(prices, Date ~ Stock, value = 'Close')#
+#
+# Fifth code snippet#
+cor.matrix <- cor(date.stock.matrix[, 2:ncol(date.stock.matrix)])#
+correlations <- as.numeric(cor.matrix)#
+#
+ggplot(data.frame(Correlation = correlations),#
+  aes(x = Correlation, fill = 1)) +#
+  geom_density() +#
+  theme(legend.position = 'none')#
+#
+# Sixth code snippet#
+pca <- princomp(date.stock.matrix[, 2:ncol(date.stock.matrix)])#
+#
+# Seventh code snippet#
+#Call:#
+#princomp(x = date.stock.matrix[, 2:ncol(date.stock.matrix)])#
+#Standard deviations:#
+#Comp.1 Comp.2 Comp.3 Comp.4 Comp.5 Comp.6 Comp.7#
+#29.1001249 20.4403404 12.6726924 11.4636450 8.4963820 8.1969345 5.5438308#
+#Comp.8 Comp.9 Comp.10 Comp.11 Comp.12 Comp.13 Comp.14#
+#5.1300931 4.7786752 4.2575099 3.3050931 2.6197715 2.4986181 2.1746125#
+#Comp.15 Comp.16 Comp.17 Comp.18 Comp.19 Comp.20 Comp.21#
+#1.9469475 1.8706240 1.6984043 1.6344116 1.2327471 1.1280913 0.9877634#
+#Comp.22 Comp.23 Comp.24#
+#0.8583681 0.7390626 0.4347983#
+#24 variables and 2366 observations.#
+#
+# Eighth code snippet#
+principal.component <- pca$loadings[, 1]#
+#
+# Ninth code snippet#
+loadings <- as.numeric(principal.component)#
+#
+ggplot(data.frame(Loading = loadings),#
+  aes(x = Loading, fill = 1)) +#
+  geom_density() +#
+  theme(legend.position = 'none')#
+#
+# Tenth code snippet#
+market.index <- predict(pca)[, 1]#
+#
+# Eleventh code snippet#
+dji.prices <- read.csv(file.path('data', 'DJI.csv'),#
+                       stringsAsFactors = FALSE)#
+dji.prices <- transform(dji.prices, Date = ymd(Date))#
+#
+# Twelfth code snippet#
+dji.prices <- subset(dji.prices, Date > ymd('2001-12-31'))#
+dji.prices <- subset(dji.prices, Date != ymd('2002-02-01'))#
+#
+# Thirteenth code snippet#
+dji <- with(dji.prices, rev(Close))#
+dates <- with(dji.prices, rev(Date))#
+#
+# Fourteenth code snippet#
+comparison <- data.frame(Date = dates,#
+                         MarketIndex = market.index,#
+                         DJI = dji)#
+#
+ggplot(comparison, aes(x = MarketIndex, y = DJI)) +#
+  geom_point() +#
+  geom_smooth(method = 'lm', se = FALSE)#
+#
+# Fifteenth code snippet#
+comparison <- transform(comparison, MarketIndex = -1 * MarketIndex)#
+#
+# Sixteenth code snippet#
+ggplot(comparison, aes(x = MarketIndex, y = DJI)) +#
+  geom_point() +#
+  geom_smooth(method = 'lm', se = FALSE)#
+#
+# Seventeenth code snippet#
+alt.comparison <- melt(comparison, id.vars = 'Date')#
+#
+names(alt.comparison) <- c('Date', 'Index', 'Price')#
+#
+ggplot(alt.comparison,#
+       aes(x = Date, y = Price, group = Index, color = Index)) +#
+  geom_point() +#
+  geom_line()#
+#
+# Eighteenth code snippet#
+comparison <- transform(comparison, MarketIndex = scale(MarketIndex))#
+comparison <- transform(comparison, DJI = scale(DJI))#
+#
+alt.comparison <- melt(comparison, id.vars = 'Date')#
+#
+names(alt.comparison) <- c('Date', 'Index', 'Price')#
+#
+ggplot(alt.comparison, aes(x = Date, y = Price, group = Index, color = Index)) +#
+  geom_point() +geom_line()
+getwd()#
+setwd('/Users/admin/Documents/GitHubCode/MLForHackersCode/Ch08-PCA-BuildingMarketIndex')#
+getwd()#
+#
+#load required libraries#
+library(lubridate)#
+library(reshape)#
+library(ggplot2)#
+#####################Unsupervised Learning#########################
+#load data set#
+prices <- read.csv('data/stock_prices.csv')#
+str(prices)#
+#
+#convert data type of Date column from factor to Date#
+prices <- transform(prices, Date = ymd(Date))#
+str(prices)#
+#
+#convert prices dataframe into a pivot table with dates on rows, stocks on columns and closing price as the value#
+data.stock.matrix <- cast(prices, Date ~ Stock, value = 'Close')#
+#
+#check for any missing values in the resulting matrix#
+data.stock.matrix[apply(data.stock.matrix, 1, function(y) any(is.na(y))),]#
+#
+#remove those rows from dataframe and create matrix again#
+prices <- subset(prices, !(Date %in% c(ymd('2002-02-01', '2005-06-22'))))#
+data.stock.matrix <- cast(prices, Date ~ Stock, value = 'Close')#
+#
+#create correlation matrix of data.stock.matrix#
+correlationMat <- cor(data.stock.matrix[, 2:ncol(data.stock.matrix)])#
+correlations <- as.numeric(correlationMat)#
+ggplot(data.frame(Correlation = correlations), aes(x = Correlation, fill = 1)) + geom_density() + theme(legend.position = 'none')#
+#
+#compute principal components of data#
+pca <- princomp(data.stock.matrix[, 2:ncol(data.stock.matrix)])#
+print (pca)#
+#
+#try to get weights that first principal component assigns to each column within our dataset#
+principal.comp <- pca$loadings[, 1]#
+loadings <- as.numeric(principal.comp)#
+ggplot(data.frame(Loading = loadings), aes(x = Loading, fill = 1)) + geom_density() + theme(legend.position = 'none')#
+#
+#predict pca on data#
+market.index <- predict(pca)[, 1]#
+#
+#use DJI data to evaluate accuracy of pca prediction#
+dji.prices <- read.csv('data/DJI.csv')#
+str(dji.prices)#
+dji.prices <- transform(dji.prices, Date = ymd(Date))#
+str(dji.prices)#
+#
+#subset DJI data set to keep the date range we are interested in#
+dji.prices <- subset(dji.prices, Date > ymd('2002-01-01'))#
+dji.prices <- subset(dji.prices, !(Date %in% c(ymd('2002-02-01', '2005-06-22'))))#
+#
+#reverse closing prices and dates in dji.prices dataframe#
+dji <- rev(dji.prices$Close)#
+dates <- rev(dji.prices$Date)#
+#
+#compare the results of DJI with values predicted by PCA#
+comparison <- data.frame(Date = dates, MarketIndex = market.index, DJI = dji)#
+#
+ggplot(comparison, aes(x = market.index, y = DJI)) + geom_point() + geom_smooth(method = 'lm', se = FALSE)#
+#
+comparison <- transform(comparison, MarketIndex = -1 * MarketIndex)#
+ggplot(comparison, aes(x = MarketIndex, y = DJI)) + geom_point() + geom_smooth(method = 'lm', se = FALSE)#
+#
+#evaluate how well prediction tracks DJI over time#
+alt.comparison <- melt(comparison, id.vars = 'Date')#
+names(alt.comparison) <- c('Date', 'Index', 'Price')#
+ggplot(alt.comparison, aes(x = Date, y = Price, group = Index, color = Index)) + geom_point() + geom_line()#
+#
+#fix the discrepancy in the results by scaling market index and dji prices#
+comparison$MarketIndex <- -scale(comparison$MarketIndex)#
+comparison$DJI <- scale(comparison$DJI)#
+#
+alt.comparison <- melt(comparison, id.vars = 'Date')#
+names(alt.comparison) <- c('Date', 'Index', 'Price')#
+#
+ggplot(alt.comparison, aes(x = Date, y = Price, group = Index, color = Index)) + geom_point() + geom_line()

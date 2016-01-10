@@ -1,0 +1,853 @@
+#Predict on test set#
+rfPredictions <- predict(rfModel, newdata = test, type = 'prob')#
+summary(rfPredictions[, 2])#
+rfOutput <- ifelse(rfPredictions[, 2] < 0.5, 0, 1)#
+table(rfOutput)
+#Create submission file#
+output <- data.frame(PassengerId = test$PassengerId, Survived = rfOutput)#
+write.csv(output, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/submission/rfModel.csv', row.names = FALSE)#
+#
+#FOR ENSEMBLE MODELING#
+rfTrainPred <- predict(rfModel, type = 'prob')#
+summary(rfTrainPred[, 2])#
+#
+rfTrainOutput <- data.frame(PassengerId = train$PassengerId, Survived_RF = rfTrainPred[, 2])#
+write.csv(rfTrainOutput, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/ensemble/rfModelTrain.csv', row.names = FALSE)#
+#
+rfTestOutput <- data.frame(PassengerId = test$PassengerId, Survived_RF = rfPredictions[, 2])#
+write.csv(rfTestOutput, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/ensemble/rfModelTest.csv', row.names = FALSE)
+rm(list = ls())#
+#Read files#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/preprocessed/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/preprocessed/test.csv')#
+#Build model#
+train$Survived <- as.factor(train$Survived)#
+glmModel <- glm(Survived ~ . - PassengerId, data = train, family = binomial)#
+summary(glmModel)
+#Predict on test set#
+glmPredictions <- predict(glmModel, newdata = test, type = 'response')#
+summary(glmPredictions)#
+glmOutput <- ifelse(glmPredictions < 0.5, 0, 1)
+table(glmOutput)
+#Create submission file#
+output <- data.frame(PassengerId = test$PassengerId, Survived = glmOutput)#
+write.csv(output, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/submission/glmModel.csv', row.names = FALSE)#
+#
+#FOR ENSEMBLE MODELING#
+glmTrainPred <- predict(glmModel, type = 'response')#
+summary(glmTrainPred)#
+#
+glmTrainOutput <- data.frame(PassengerId = train$PassengerId, Survived_GLM = glmTrainPred)#
+write.csv(glmTrainPred, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/ensemble/glmModelTrain.csv', row.names = FALSE)#
+#
+glmTestOutput <- data.frame(PassengerId = test$PassengerId, Survived_GLM = glmPredictions)#
+write.csv(glmTestOutput, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/ensemble/glmModelTest.csv', row.names = FALSE)
+rm(list = ls())#
+#
+library(deepnet)#
+#Load train predictions for all models and actual train output#
+rfTrainPred <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/ensemble/rfModelTrain.csv')#
+glmTrainPred <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/ensemble/glmModelTrain.csv')#
+#
+rfPredictions <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/ensemble/rfModelTest.csv')#
+glmPredictions <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/ensemble/glmModelTest.csv')#
+#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/train.csv')
+#OPTION-2: SIMPLE AVERAGE#
+#Compute ensembled predictions based on the other weights#
+predictions <- (glmPredictions + rfPredictions[, 2]) / 2#
+summary(predictions)#
+ensembleOutput <- ifelse(predictions < 0.5, 0, 1)#
+table(ensembleOutput)#
+#
+#Create submission file#
+output <- data.frame(PassengerId  = test$PassengerId, Survived = ensembleOutput)#
+write.csv(output, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/submission/ensemble.csv', row.names = FALSE)
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/test.csv')
+output <- data.frame(PassengerId  = test$PassengerId, Survived = ensembleOutput)
+str(output)
+predictions <- (glmPredictions + rfPredictions[, 2]) / 2
+summary(predictions)
+str(glmPredictions)
+str(glmPredictions[, 2])
+str(rfPredictions)
+str(rfPredictions[, 2])
+predictions <- (glmPredictions[, 2] + rfPredictions[, 2]) / 2
+summary(predictions)
+ensembleOutput <- ifelse(predictions < 0.5, 0, 1)
+table(ensembleOutput)
+output <- data.frame(PassengerId  = test$PassengerId, Survived = ensembleOutput)
+str(output)
+sample <- rbind(test, ensembledOutput)
+sample <- rbind(test, ensembleOutput)
+sample <- cbind(test, ensembleOutput)
+table(sample$Sex, sample$Survived)
+str(sample)
+table(sample$Sex, sample$ensembleOutput)
+str(ensembleOutput)
+str(output)
+write.csv(output, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/submission/ensemble.csv', row.names = FALSE)
+trainPred <- cbind(rfTrainPred, glmTrainPred)#
+colnames(trainPred) <- c('PassengerId', 'Survived_RF', 'Survived_GLM'#
+)#
+testPred <- cbind(rfPredictions, glmPredictions)#
+x <- as.matrix(trainPred[, c('Survived_RF', 'Survived_GLM')])#
+y <- as.numeric(train$Survived)#
+x_test <- as.matrix(testPred[, c('Survived_RF', 'Survived_GLM')])#
+nn <- dbn.dnn.train(x, y, hidden = c(1), activationfun = 'sigm')#
+nn_predict <- nn.predict(nn, x)#
+nn_predict_test <- nn.predict(nn, x_test)
+summary(nn_predict_test)
+rm(list = ls())#
+#Load required packages and read data#
+library(data.table)#
+library(stringr)#
+library(plyr)#
+library(caret)#
+train <- fread(input = '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/train.csv')#
+train <- as.data.frame(train)#
+test <- fread('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/test.csv')#
+test <- as.data.frame(test)#
+#
+#FEATURE ENGG#
+#Create new column that computes family size#
+all$familySize <- all$SibSp + all$Parch#
+#
+#Extract salutation from name column#
+all$firstMiddleName <- sapply(strsplit(all$Name, ','), '[', 2)#
+all$Salutation <- sapply(strsplit(all$firstMiddleName, '\\.'), '[', 1)#
+all$Salutation <- str_trim(all$Salutation, side = 'both')#
+#Set all rare salutations (count < 10) as 'Other'#
+all$Salutation[all$Salutation %in% c('Col', 'Don', 'Dona', 'Dr', 'Jonkheer', 'Lady', 'Major', 'Mlle', 'Mme', 'Ms', 'Other', 'Rev', 'Sir', 'the Countess', 'Capt')] <- 'Other'#
+#MISSING VALUE IMPUTATION#
+#Impute port of embarkation with most frequent value#
+table(all$Embarked) #S is most frequent value#
+all$Embarked[all$Embarked == ""] <- 'S'#
+all$Embarked <- factor(all$Embarked) #drop ununsed level
+rm(list = ls())#
+#Load required packages and read data#
+library(data.table)#
+library(stringr)#
+library(plyr)#
+library(caret)#
+train <- fread(input = '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/train.csv')#
+train <- as.data.frame(train)#
+test <- fread('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/test.csv')#
+test <- as.data.frame(test)#
+#
+#combine train and test data sets into one#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#FEATURE ENGG#
+#Create new column that computes family size#
+all$familySize <- all$SibSp + all$Parch#
+#
+#Extract salutation from name column#
+all$firstMiddleName <- sapply(strsplit(all$Name, ','), '[', 2)#
+all$Salutation <- sapply(strsplit(all$firstMiddleName, '\\.'), '[', 1)#
+all$Salutation <- str_trim(all$Salutation, side = 'both')#
+#Set all rare salutations (count < 10) as 'Other'#
+all$Salutation[all$Salutation %in% c('Col', 'Don', 'Dona', 'Dr', 'Jonkheer', 'Lady', 'Major', 'Mlle', 'Mme', 'Ms', 'Other', 'Rev', 'Sir', 'the Countess', 'Capt')] <- 'Other'#
+#MISSING VALUE IMPUTATION#
+#Impute port of embarkation with most frequent value#
+table(all$Embarked) #S is most frequent value#
+all$Embarked[all$Embarked == ""] <- 'S'#
+all$Embarked <- factor(all$Embarked) #drop ununsed level
+str(all)
+ageTree <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + familySize + Salutation, data = all[!is.na(all$Age)], method = 'anova' )
+library(rpart)
+library(rpart.plot)
+ageTree <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + familySize + Salutation, data = all[!is.na(all$Age)], method = 'anova' )
+ageTree <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + familySize + Salutation, data = all[!is.na(all$Age), ], method = 'anova' )
+rpart.plot(ageTree, type = 4)
+all$Age[is.na(all$Age)] <- predict(ageTree, newdata = all[is.na(all$Age), ])
+str(all)
+fareTree <- rpart(Fare ~ Pclass + Sex + SibSp + Parch + Age + Embarked + familySize + Salutation, data = all[!is.na(all$Fare), ], method = 'anova')
+all$Fare[is.na(all$Fare)] <- predict(fareTree, newdata = all[!is.na(all$Fare), ])
+all$Fare[is.na(all$Fare)] <- predict(fareTree, newdata = all[is.na(all$Fare), ])
+table(is.na(all))
+write.csv(train, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv', row.names = FALSE)
+write.csv(test, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv', row.names = FALSE)
+colnames(all)
+#Remove columns that would not be used#
+all$Name <- NULL#
+all$Ticket <- NULL#
+all$Cabin <- NULL#
+all$firstMiddleName <- NULL
+colnames(all)
+rm(list = ls())#
+#Load required packages and read data#
+library(data.table)#
+library(stringr)#
+library(plyr)#
+library(caret)#
+library(rpart)#
+library(rpart.plot)#
+train <- fread(input = '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/train.csv')#
+train <- as.data.frame(train)#
+test <- fread('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/test.csv')#
+test <- as.data.frame(test)#
+#
+#combine train and test data sets into one#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#FEATURE ENGG#
+#Create new column that computes family size#
+all$familySize <- all$SibSp + all$Parch#
+#
+#Extract salutation from name column#
+all$firstMiddleName <- sapply(strsplit(all$Name, ','), '[', 2)#
+all$Salutation <- sapply(strsplit(all$firstMiddleName, '\\.'), '[', 1)#
+all$Salutation <- str_trim(all$Salutation, side = 'both')#
+#Set all rare salutations (count < 10) as 'Other'#
+all$Salutation[all$Salutation %in% c('Col', 'Don', 'Dona', 'Dr', 'Jonkheer', 'Lady', 'Major', 'Mlle', 'Mme', 'Ms', 'Other', 'Rev', 'Sir', 'the Countess', 'Capt')] <- 'Other'#
+#
+#MISSING VALUE IMPUTATION#
+#Impute port of embarkation with most frequent value#
+table(all$Embarked) #S is most frequent value#
+all$Embarked[all$Embarked == ""] <- 'S'#
+all$Embarked <- factor(all$Embarked) #drop ununsed level#
+#
+#Impute missing values of age based on decision tree computed on all other available variables#
+ageTree <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + familySize + Salutation, data = all[!is.na(all$Age), ], method = 'anova' )#
+all$Age[is.na(all$Age)] <- predict(ageTree, newdata = all[is.na(all$Age), ])#
+#
+#Impute missing values of fare based on decision tree compute on all other available variables#
+fareTree <- rpart(Fare ~ Pclass + Sex + SibSp + Parch + Age + Embarked + familySize + Salutation, data = all[!is.na(all$Fare), ], method = 'anova')#
+all$Fare[is.na(all$Fare)] <- predict(fareTree, newdata = all[is.na(all$Fare), ])#
+#
+#Remove columns that would not be used#
+all$Name <- NULL#
+all$Ticket <- NULL#
+all$Cabin <- NULL#
+all$firstMiddleName <- NULL#
+#split train and test data sets and write them into files#
+train <- subset(all, !is.na(all$Survived))#
+test <- subset(all, is.na(all$Survived))#
+test$Survived <- NULL#
+#
+#write new datasets into train and test files#
+write.csv(train, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv', row.names = FALSE)#
+write.csv(test, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv', row.names = FALSE)
+colnames(train)
+library(glmnet)
+install.packages('glmnet')
+library(glmnet)
+cv.glmnet(x = train[, !(colnames(train) %in% c('PassengerId', 'Survived'))], y = train[, c('Survived')], type.measure = 'class', nfolds = 10)
+colnames(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'class', nfolds = 10)
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')
+table(is.na(train))
+set.seed(10)
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+table(is.na(x_mat))
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'class', nfolds = 10)
+str(train)
+str(model.matrix(~train))
+str(model.matrix(~train$Sex))
+head(model.matrix(~train$Sex))
+head(model.matrix(~train$Sex - 1))
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE)
+fullData <- predict(dummy, newdata = all)
+str(fullData)
+891 + 418
+head(fullData)
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)
+fullData <- predict(dummy, newdata = all)
+head(fullData)
+nrow(fullData)
+dummyData <- predict(dummy, newdata = all)
+fullData <- cbind(dummyData, all$Survived)
+str(fullData)
+summary(fullData$PassengerId)
+fullData <- as.data.frame(cbind(dummyData, all$Survived))
+str(fullData)
+colnames(train)
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))
+str(fullData)
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL
+set.seed(10)
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'class', nfolds = 10)
+str(train)
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL#
+train$Survived <- as.factor(train$Survived)
+set.seed(10)
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'class', nfolds = 10)
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'auc', nfolds = 10)
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL
+set.seed(10)
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'auc', nfolds = 10)
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL#
+train$Survived <- as.factor(train$Survived)#
+#
+#Find optimal value of lambda#
+set.seed(10)#
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+str(train)
+cv.glmnet(x = x_mat, y = train$Survived, family = 'binomial', type.measure = 'class', nfolds = 10)
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1, lambda = 0.0009162309)
+summary(lassoModel)
+lassoModel
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1)
+lassoModel
+predictions <- predict(lassoModel, newdata = test)
+x_mat_test <- as.matrix(test[, colnames(test) != 'PassengerId'])
+lassoPredictions <- predict(lassoModel, newdata = x_mat_test)
+lassoPredictions <- predict(lassoModel, newdata = x_mat_test, type = 'response')
+lassoPredictions <- predict(lassoModel, x_mat_test, type = 'response')
+summary(lasspoPredictions)
+summary(lassoPredictions)
+lassoModel
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1, lambda = 0.0009162309)
+print(lassoModel)
+x_mat_test <- as.matrix(test[, colnames(test) != 'PassengerId'])
+lassoPredictions <- predict(lassoModel, x_mat_test, type = 'response')
+summary(lassoPredictions)
+lassoOutput <- ifelse(lassoPredictions < 0.5, 0, 1)
+table(lassoOutput)
+str(lassoPredictions)
+str(x_mat_test)
+str(test)
+test <- subset(fullData, is.na(fullData$Survived))
+str(test)
+table(is.na(fullData$Survived))
+table(is.na(all$Survived))
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL#
+train$Survived <- as.factor(train$Survived)#
+#
+#Find optimal value of lambda#
+set.seed(10)#
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])#
+cv.glmnet(x = x_mat, y = train$Survived, family = 'binomial', type.measure = 'class', nfolds = 10)
+#Build logistic regression with lasso #
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1, lambda = 0.0009162309)#
+print(lassoModel)
+x_mat_test <- as.matrix(test[, colnames(test) != 'PassengerId'])#
+lassoPredictions <- predict(lassoModel, x_mat_test, type = 'response')#
+summary(lassoPredictions)
+str(lassoPredictions)
+lassoOutput <- ifelse(lassoPredictions < 0.5, 0, 1)
+table(lassoOutput)
+str(test)
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logitWithLasso.csv', row.names = FALSE)
+submission <- data.frame(PassengerId = test$PassengerId, Survived = lassoOutput)
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logitWithLasso.csv', row.names = FALSE)
+#Name: LogisticRegression.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: base#
+#
+rm(list = ls())#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Create logistic regression model#
+logModel <- glm(Survived ~ . -PassengerId, data = train, family = binomial)#
+summary(logModel)#
+#
+#Predict output#
+glmProbability <- predict(logModel, newdata = test)#
+summary(glmProbability)#
+#
+glmOutput <- ifelse(glmProbability < 0.5, 0, 1)#
+table(glmOutput)#
+#
+#Create submission file#
+submission <- data.frame(PassengerId = test$PassengerId, Survived = glmOutput)#
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logisticRegression.csv', row.names = FALSE)
+#Name: LogisticRegression.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: base#
+#
+rm(list = ls())#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv')#
+#
+#Create logistic regression model#
+logModel <- glm(Survived ~ . -PassengerId, data = train, family = binomial)#
+summary(logModel)#
+#
+#Predict output#
+glmProbability <- predict(logModel, newdata = test)#
+summary(glmProbability)#
+#
+glmOutput <- ifelse(glmProbability < 0.5, 0, 1)#
+table(glmOutput)#
+#
+#Create submission file#
+submission <- data.frame(PassengerId = test$PassengerId, Survived = glmOutput)#
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logisticRegression.csv', row.names = FALSE)
+rm(list = ls())#
+library(randomForest)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv')#
+train$Survived <- as.factor(train$Survived)#
+#
+#Find optimal mtry with ntree = 2000#
+mtries <- tunerf(x = train[, !(colnames(train) %in% c('PassengerId', 'Survived'))], y = train$Survived, ntreeTry = 2000)
+mtries <- tuneRF(x = train[, !(colnames(train) %in% c('PassengerId', 'Survived'))], y = train$Survived, ntreeTry = 2000)
+optimumMtry <- 2
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL#
+train$Survived <- as.factor(train$Survived)#
+#
+#Find optimal value of lambda#
+set.seed(10)#
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])#
+cv.glmnet(x = x_mat, y = train$Survived, family = 'binomial', type.measure = 'class', nfolds = 10)#
+minLambda <- 0.0009162309#
+#
+#Build logistic regression with lasso #
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1, lambda = 0.0009162309)#
+print(lassoModel)#
+#
+#Predict on test data#
+x_mat_test <- as.matrix(test[, colnames(test) != 'PassengerId'])#
+lassoPredictions <- predict(lassoModel, x_mat_test, type = 'response')#
+summary(lassoPredictions)#
+#
+lassoOutput <- ifelse(lassoPredictions < 0.5, 0, 1)#
+table(lassoOutput)
+str(lassoOutput)
+head(as.vector(lassoOutput))
+submission <- data.frame(PassengerId = test$PassengerId, Survived = as.vector(lassoOutput))
+head(submission)
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logitWithLasso.csv', row.names = FALSE)
+library(cvTools)
+install.packages('cvTools')
+library(cvTools)
+library(Metrics)
+methods(Metrics)
+ls(getNamespace('Metrics'), all.names = TRUE)
+ce(0, 1)
+ce(1, 0)
+ce(0, 0)
+ce(1, 1)
+yp <- sample(0:2,50,replace=TRUE)
+yt <- sample(0:2,50,replace=TRUE)
+ce(yp, yt)
+ll(yp, yt)
+mae(yp, yt)
+mse(yp, yt)
+rmse(yp, yt)
+cor(1, 1)
+cor(x=c(1, 1, 1), y=c(1, 1, 1))
+cor(x=c(1, 1, 1), y=c(1, 1, 2))
+cor(x=c(1, 1, 3), y=c(1, 1, 2))
+cor(x=c(1, 1, 2), y=c(1, 1, 2))
+cor(x=c(1, 1, 2), y=c(2, 1, 1))
+install.packages('akima')
+install.packages(c('chron', 'lme4'))
+install.packages(c('mcmc', 'odesolve', 'spdep', 'spastat', 'tree'))
+library(MASS)
+attach(bacteria)
+str(bacteria)
+head(bacteria)
+fix(bacteria)
+objects()
+search()
+library(help = cvTools)
+library(help=xgBoost)
+library(xgBoost)
+library(help = xgboost)
+library(xgboost)
+library(help = xgboost)
+exp(-1)
+exp(1)
+exp(-100000000)
+exp(100000000)
+getwd()
+setwd('/Users/admin/Documents/GitHubCode/MLForHackersCode/Ch10-kNN-RecommendationSystem')
+getwd()
+df <- read.csv('/data/example_data.csv')
+df <- read.csv('data/example_data.csv')
+head(df)
+#compute distance matrix#
+distance.matrix <- function(df){#
+	#create a matrix of size nrow(df) X nrow(df) filled with NAs for now#
+	distance <- matrix(data = rep(NA, nrow(df) ^ 2), nrow = nrow(df) )#
+	for (i in 1:nrow(df)){#
+		for (j in 1:nrow(df)){#
+#distance at [i,j] location is sqrt of sum of squared difference between their X co-ordinates (at [i, X] and [j, X]) and Y co-ordinates (at [i, Y] and [j, Y])#
+			distance[i, j] = sqrt((df[i, X] - df[j, X]) ^ 2 + (df[i, Y] - df[j, Y]) ^ 2)#
+		}#
+	}#
+	return (distance)#
+}#
+#
+#function to extract k-nearest neighbors for each point in distance matrix#
+k.nearest.neighbors <- function(i, distance, k = 5){#
+	#sort distances#
+	ordered.distances <- order(distance[i, ])#
+	#return all k points except for the ith point itself#
+	return (ordered.distances[2:(k+1)])#
+}
+predictions <- rep(NA, nrow(df))
+#implement knn algorithm based on the two functions above#
+knn <- function(df, k = 5){#
+	#compute distance matrix#
+	distances <- distance.matrix(df)#
+	#create an dummy vector of NAs to contain all predictions#
+	predictions <- rep(NA, nrow(df))#
+	for (i in 1:nrow(df)){#
+		#get indices of neares neighbors#
+		indices <- k.nearest.neighbors(i, distances, k)#
+		#get mean of Labels for all the neighbors to a given point. If the mean is greater than 0.5, predict 1. Else, predict 0 for i#
+		predictions[i] <- ifelse(mean(df[indices, 'Label']) > 0.5, 1, 0)#
+	}#
+	return (predictions)#
+}
+df <- transform(df, kNNPredictions = knn(df))
+#compute distance matrix#
+distance.matrix <- function(df){#
+	#create a matrix of size nrow(df) X nrow(df) filled with NAs for now#
+	distance <- matrix(data = rep(NA, nrow(df) ^ 2), nrow = nrow(df) )#
+	for (i in 1:nrow(df)){#
+		for (j in 1:nrow(df)){#
+#distance at [i,j] location is sqrt of sum of squared difference between their X co-ordinates (at [i, X] and [j, X]) and Y co-ordinates (at [i, Y] and [j, Y])#
+			distance[i, j] = sqrt((df[i, 'X'] - df[j, 'X']) ^ 2 + (df[i, 'Y'] - df[j, 'Y']) ^ 2)#
+		}#
+	}#
+	return (distance)#
+}#
+#
+#function to extract k-nearest neighbors for each point in distance matrix#
+k.nearest.neighbors <- function(i, distance, k = 5){#
+	#sort distances#
+	ordered.distances <- order(distance[i, ])#
+	#return all k points except for the ith point itself#
+	return (ordered.distances[2:(k+1)])#
+}#
+#
+#implement knn algorithm based on the two functions above#
+knn <- function(df, k = 5){#
+	#compute distance matrix#
+	distances <- distance.matrix(df)#
+	#create an dummy vector of NAs to contain all predictions#
+	predictions <- rep(NA, nrow(df))#
+	for (i in 1:nrow(df)){#
+		#get indices of neares neighbors#
+		indices <- k.nearest.neighbors(i, distances, k)#
+		#get mean of Labels for all the neighbors to a given point. If the mean is greater than 0.5, predict 1. Else, predict 0 for i#
+		predictions[i] <- ifelse(mean(df[indices, 'Label']) > 0.5, 1, 0)#
+	}#
+	return (predictions)#
+}
+df <- transform(df, kNNPredictions = knn(df))
+DF
+df
+sum(df$Label != df$kNNPredictions)
+sum(df$Label != df$kNNPredictions) / nrow(df)
+sum(df$Label != df$kNNPredictions) / nrow(df) * 100
+knn
+rm('knn')
+knn
+library(class)
+rm('knn')#
+library(class)#
+#
+#read data#
+df <- read.csv('data/example_data.csv')#
+#
+#create training and test sets for feature and response variables#
+n <- nrow(df)#
+indices <- sort(sample(1:n, size = n / 2))#
+#
+training.x <- df[indices, 1:2] #first two columns are feature columns#
+test.x <- df[-indices, 1:2]#
+training.y <- df[indices, 3] #third column is label#
+test.y <- df[indices, 3]
+predicted.y <- knn(train = training.x, test = test.x, cl = training.y, k = 5)
+sum(predicted.y != test.y) / nrow(training.x) * 100
+library(class)#
+library(reshape)
+#load data#
+installations <- read.csv('data/installations.csv')#
+head(installations)
+user.package.matrix <- cast(data = installations, formula = User ~ Package, value = 'Installed')
+str(user.package.matrix)
+row.names(user.package.matrix) <- user.package.matrix[, 1]
+user.package.matrix <- user.package.matrix[, -1]
+str(user.package.matrix)
+correlationMat <- cor(user.package.matrix)
+correlationMat[1, 1]
+correlationMat[1, 2]
+distances <- -log((correlationMat / 2) + 0.5)
+library(class)#
+library(reshape)#
+#
+#load data#
+installations <- read.csv('data/installations.csv')#
+head(installations)#
+#
+#transform data into wide form#
+user.package.matrix <- cast(data = installations, formula = User ~ Package, value = 'Installed')#
+#
+#set row names of user.package.matrix to the user numbers and remove user number column from user.package.matrix#
+row.names(user.package.matrix) <- user.package.matrix[, 1]#
+user.package.matrix <- user.package.matrix[, -1]#
+#
+#find correlation / similarity between packages#
+correlationMat <- cor(user.package.matrix)#
+#
+#translate correlations into distances. #
+#case1: when similarity between packages == 1 (perfectly similar), (similarity/2 + 0.5) is 1 and log(1) = 0. So, distance between perfectly similar packages is 0#
+#case2: when similarity between packages == - 1 (perfectly dissimilar), (similarity/2 + 0.5) is 0 and log(0) = Inf. So, distance between perfectly dissimilar packages is infinite#
+distances <- -log((correlationMat / 2) + 0.5)#
+#
+#find k nearest neighbors of a user id#
+k.nearest.neighbors <- function(i, distances, k = 25){#
+	#sort distances of neighbors for a given userid i#
+	ordered.distances <- order(distances[i, ])#
+	#return all k nearest neighbors of current user id#
+	return(ordered.distances[2:(k + 1)])#
+}
+#predict probability of a package being installed#
+installation.prob <- function(user, package, user.package.matrix, distances, k = 25){#
+	#find closest neighbor of a given package#
+	neighbors <- k.nearest.neighbors(package, distances, k)#
+	#find probability of that package being installed#
+	probs <- sapply(neighbors, function(n) {user.package.matrix[user, n]})#
+	return(mean(probs))#
+}
+installation.probability(1, 1, user.package.matrix, distances)
+installation.prob(1, 1, user.package.matrix, distances)
+installation.prob(1, 1, user.package.matrix, distances)
+#instead of providing probability of a package being installed, recommend names of packages that are most likely to be installed#
+most.probable.packages <- function(user, user.package.matrix, distances, k = 25){#
+	#find probability of installation for all packages#
+	prob <- sapply(1:ncol(user.package.matrix), function(pkg){#
+		installation.prob(user, user.package.matrix, distances, k)#
+	})#
+	#order results from highest probable to least probable#
+	res <- order(prob, decreasing = TRUE)#
+	return(res)#
+}
+listing <- most.probable.packages(user, user.package.matrix, distances)
+#find k nearest neighbors of a package#
+k.nearest.neighbors <- function(i, distances, k = 25){#
+	#sort distances of neighbors for a given package # i#
+	ordered.distances <- order(distances[i, ])#
+	#return all k nearest neighbors of current package#
+	return(ordered.distances[2:(k + 1)])#
+}#
+#
+#predict probability of a package being installed#
+installation.prob <- function(user, package, user.package.matrix, distances, k = 25){#
+	#find closest neighbor of a given package#
+	neighbors <- k.nearest.neighbors(package, distances, k)#
+	#find probability of that package being installed#
+	probs <- sapply(neighbors, function(n) {user.package.matrix[user, n]})#
+	return(mean(probs))#
+}#
+#
+#test the function#
+installation.prob(1, 1, user.package.matrix, distances)#
+#
+#instead of providing probability of a package being installed, recommend names of packages that are most likely to be installed#
+most.probable.packages <- function(user, user.package.matrix, distances, k = 25){#
+	#find probability of installation for all packages#
+	prob <- sapply(1:ncol(user.package.matrix), function(pkg){#
+		installation.prob(user, user.package.matrix, distances, k)#
+	})#
+	#order results from highest probable to least probable#
+	res <- order(prob, decreasing = TRUE)#
+	return(res)#
+}
+user <- 1
+listing <- most.probable.packages(user, user.package.matrix, distances)
+#instead of providing probability of a package being installed, recommend names of packages that are most likely to be installed#
+most.probable.packages <- function(user, user.package.matrix, distances, k = 25){#
+	#find probability of installation for all packages#
+	prob <- sapply(1:ncol(user.package.matrix), function(pkg){#
+		installation.prob(user, pkg, user.package.matrix, distances, k)#
+	})#
+	#order results from highest probable to least probable#
+	res <- order(prob, decreasing = TRUE)#
+	return(res)#
+}#
+#
+#test the function#
+user <- 1
+listing <- most.probable.packages(user, user.package.matrix, distances)
+listing
+colnames(user.package.matrix)[listing[1:10]]

@@ -1,0 +1,740 @@
+str(sample)
+table(sample$Sex, sample$ensembleOutput)
+str(ensembleOutput)
+str(output)
+write.csv(output, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/submission/ensemble.csv', row.names = FALSE)
+trainPred <- cbind(rfTrainPred, glmTrainPred)#
+colnames(trainPred) <- c('PassengerId', 'Survived_RF', 'Survived_GLM'#
+)#
+testPred <- cbind(rfPredictions, glmPredictions)#
+x <- as.matrix(trainPred[, c('Survived_RF', 'Survived_GLM')])#
+y <- as.numeric(train$Survived)#
+x_test <- as.matrix(testPred[, c('Survived_RF', 'Survived_GLM')])#
+nn <- dbn.dnn.train(x, y, hidden = c(1), activationfun = 'sigm')#
+nn_predict <- nn.predict(nn, x)#
+nn_predict_test <- nn.predict(nn, x_test)
+summary(nn_predict_test)
+rm(list = ls())#
+#Load required packages and read data#
+library(data.table)#
+library(stringr)#
+library(plyr)#
+library(caret)#
+train <- fread(input = '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/train.csv')#
+train <- as.data.frame(train)#
+test <- fread('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/test.csv')#
+test <- as.data.frame(test)#
+#
+#FEATURE ENGG#
+#Create new column that computes family size#
+all$familySize <- all$SibSp + all$Parch#
+#
+#Extract salutation from name column#
+all$firstMiddleName <- sapply(strsplit(all$Name, ','), '[', 2)#
+all$Salutation <- sapply(strsplit(all$firstMiddleName, '\\.'), '[', 1)#
+all$Salutation <- str_trim(all$Salutation, side = 'both')#
+#Set all rare salutations (count < 10) as 'Other'#
+all$Salutation[all$Salutation %in% c('Col', 'Don', 'Dona', 'Dr', 'Jonkheer', 'Lady', 'Major', 'Mlle', 'Mme', 'Ms', 'Other', 'Rev', 'Sir', 'the Countess', 'Capt')] <- 'Other'#
+#MISSING VALUE IMPUTATION#
+#Impute port of embarkation with most frequent value#
+table(all$Embarked) #S is most frequent value#
+all$Embarked[all$Embarked == ""] <- 'S'#
+all$Embarked <- factor(all$Embarked) #drop ununsed level
+rm(list = ls())#
+#Load required packages and read data#
+library(data.table)#
+library(stringr)#
+library(plyr)#
+library(caret)#
+train <- fread(input = '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/train.csv')#
+train <- as.data.frame(train)#
+test <- fread('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/test.csv')#
+test <- as.data.frame(test)#
+#
+#combine train and test data sets into one#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#FEATURE ENGG#
+#Create new column that computes family size#
+all$familySize <- all$SibSp + all$Parch#
+#
+#Extract salutation from name column#
+all$firstMiddleName <- sapply(strsplit(all$Name, ','), '[', 2)#
+all$Salutation <- sapply(strsplit(all$firstMiddleName, '\\.'), '[', 1)#
+all$Salutation <- str_trim(all$Salutation, side = 'both')#
+#Set all rare salutations (count < 10) as 'Other'#
+all$Salutation[all$Salutation %in% c('Col', 'Don', 'Dona', 'Dr', 'Jonkheer', 'Lady', 'Major', 'Mlle', 'Mme', 'Ms', 'Other', 'Rev', 'Sir', 'the Countess', 'Capt')] <- 'Other'#
+#MISSING VALUE IMPUTATION#
+#Impute port of embarkation with most frequent value#
+table(all$Embarked) #S is most frequent value#
+all$Embarked[all$Embarked == ""] <- 'S'#
+all$Embarked <- factor(all$Embarked) #drop ununsed level
+str(all)
+ageTree <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + familySize + Salutation, data = all[!is.na(all$Age)], method = 'anova' )
+library(rpart)
+library(rpart.plot)
+ageTree <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + familySize + Salutation, data = all[!is.na(all$Age)], method = 'anova' )
+ageTree <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + familySize + Salutation, data = all[!is.na(all$Age), ], method = 'anova' )
+rpart.plot(ageTree, type = 4)
+all$Age[is.na(all$Age)] <- predict(ageTree, newdata = all[is.na(all$Age), ])
+str(all)
+fareTree <- rpart(Fare ~ Pclass + Sex + SibSp + Parch + Age + Embarked + familySize + Salutation, data = all[!is.na(all$Fare), ], method = 'anova')
+all$Fare[is.na(all$Fare)] <- predict(fareTree, newdata = all[!is.na(all$Fare), ])
+all$Fare[is.na(all$Fare)] <- predict(fareTree, newdata = all[is.na(all$Fare), ])
+table(is.na(all))
+write.csv(train, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv', row.names = FALSE)
+write.csv(test, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv', row.names = FALSE)
+colnames(all)
+#Remove columns that would not be used#
+all$Name <- NULL#
+all$Ticket <- NULL#
+all$Cabin <- NULL#
+all$firstMiddleName <- NULL
+colnames(all)
+rm(list = ls())#
+#Load required packages and read data#
+library(data.table)#
+library(stringr)#
+library(plyr)#
+library(caret)#
+library(rpart)#
+library(rpart.plot)#
+train <- fread(input = '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/train.csv')#
+train <- as.data.frame(train)#
+test <- fread('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/data/test.csv')#
+test <- as.data.frame(test)#
+#
+#combine train and test data sets into one#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#FEATURE ENGG#
+#Create new column that computes family size#
+all$familySize <- all$SibSp + all$Parch#
+#
+#Extract salutation from name column#
+all$firstMiddleName <- sapply(strsplit(all$Name, ','), '[', 2)#
+all$Salutation <- sapply(strsplit(all$firstMiddleName, '\\.'), '[', 1)#
+all$Salutation <- str_trim(all$Salutation, side = 'both')#
+#Set all rare salutations (count < 10) as 'Other'#
+all$Salutation[all$Salutation %in% c('Col', 'Don', 'Dona', 'Dr', 'Jonkheer', 'Lady', 'Major', 'Mlle', 'Mme', 'Ms', 'Other', 'Rev', 'Sir', 'the Countess', 'Capt')] <- 'Other'#
+#
+#MISSING VALUE IMPUTATION#
+#Impute port of embarkation with most frequent value#
+table(all$Embarked) #S is most frequent value#
+all$Embarked[all$Embarked == ""] <- 'S'#
+all$Embarked <- factor(all$Embarked) #drop ununsed level#
+#
+#Impute missing values of age based on decision tree computed on all other available variables#
+ageTree <- rpart(Age ~ Pclass + Sex + SibSp + Parch + Fare + Embarked + familySize + Salutation, data = all[!is.na(all$Age), ], method = 'anova' )#
+all$Age[is.na(all$Age)] <- predict(ageTree, newdata = all[is.na(all$Age), ])#
+#
+#Impute missing values of fare based on decision tree compute on all other available variables#
+fareTree <- rpart(Fare ~ Pclass + Sex + SibSp + Parch + Age + Embarked + familySize + Salutation, data = all[!is.na(all$Fare), ], method = 'anova')#
+all$Fare[is.na(all$Fare)] <- predict(fareTree, newdata = all[is.na(all$Fare), ])#
+#
+#Remove columns that would not be used#
+all$Name <- NULL#
+all$Ticket <- NULL#
+all$Cabin <- NULL#
+all$firstMiddleName <- NULL#
+#split train and test data sets and write them into files#
+train <- subset(all, !is.na(all$Survived))#
+test <- subset(all, is.na(all$Survived))#
+test$Survived <- NULL#
+#
+#write new datasets into train and test files#
+write.csv(train, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv', row.names = FALSE)#
+write.csv(test, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv', row.names = FALSE)
+colnames(train)
+library(glmnet)
+install.packages('glmnet')
+library(glmnet)
+cv.glmnet(x = train[, !(colnames(train) %in% c('PassengerId', 'Survived'))], y = train[, c('Survived')], type.measure = 'class', nfolds = 10)
+colnames(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'class', nfolds = 10)
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')
+table(is.na(train))
+set.seed(10)
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+table(is.na(x_mat))
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'class', nfolds = 10)
+str(train)
+str(model.matrix(~train))
+str(model.matrix(~train$Sex))
+head(model.matrix(~train$Sex))
+head(model.matrix(~train$Sex - 1))
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE)
+fullData <- predict(dummy, newdata = all)
+str(fullData)
+891 + 418
+head(fullData)
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)
+fullData <- predict(dummy, newdata = all)
+head(fullData)
+nrow(fullData)
+dummyData <- predict(dummy, newdata = all)
+fullData <- cbind(dummyData, all$Survived)
+str(fullData)
+summary(fullData$PassengerId)
+fullData <- as.data.frame(cbind(dummyData, all$Survived))
+str(fullData)
+colnames(train)
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))
+str(fullData)
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL
+set.seed(10)
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'class', nfolds = 10)
+str(train)
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL#
+train$Survived <- as.factor(train$Survived)
+set.seed(10)
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'class', nfolds = 10)
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'auc', nfolds = 10)
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL
+set.seed(10)
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+cv.glmnet(x = x_mat, y = train$Survived, type.measure = 'auc', nfolds = 10)
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL#
+train$Survived <- as.factor(train$Survived)#
+#
+#Find optimal value of lambda#
+set.seed(10)#
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])
+str(train)
+cv.glmnet(x = x_mat, y = train$Survived, family = 'binomial', type.measure = 'class', nfolds = 10)
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1, lambda = 0.0009162309)
+summary(lassoModel)
+lassoModel
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1)
+lassoModel
+predictions <- predict(lassoModel, newdata = test)
+x_mat_test <- as.matrix(test[, colnames(test) != 'PassengerId'])
+lassoPredictions <- predict(lassoModel, newdata = x_mat_test)
+lassoPredictions <- predict(lassoModel, newdata = x_mat_test, type = 'response')
+lassoPredictions <- predict(lassoModel, x_mat_test, type = 'response')
+summary(lasspoPredictions)
+summary(lassoPredictions)
+lassoModel
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1, lambda = 0.0009162309)
+print(lassoModel)
+x_mat_test <- as.matrix(test[, colnames(test) != 'PassengerId'])
+lassoPredictions <- predict(lassoModel, x_mat_test, type = 'response')
+summary(lassoPredictions)
+lassoOutput <- ifelse(lassoPredictions < 0.5, 0, 1)
+table(lassoOutput)
+str(lassoPredictions)
+str(x_mat_test)
+str(test)
+test <- subset(fullData, is.na(fullData$Survived))
+str(test)
+table(is.na(fullData$Survived))
+table(is.na(all$Survived))
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL#
+train$Survived <- as.factor(train$Survived)#
+#
+#Find optimal value of lambda#
+set.seed(10)#
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])#
+cv.glmnet(x = x_mat, y = train$Survived, family = 'binomial', type.measure = 'class', nfolds = 10)
+#Build logistic regression with lasso #
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1, lambda = 0.0009162309)#
+print(lassoModel)
+x_mat_test <- as.matrix(test[, colnames(test) != 'PassengerId'])#
+lassoPredictions <- predict(lassoModel, x_mat_test, type = 'response')#
+summary(lassoPredictions)
+str(lassoPredictions)
+lassoOutput <- ifelse(lassoPredictions < 0.5, 0, 1)
+table(lassoOutput)
+str(test)
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logitWithLasso.csv', row.names = FALSE)
+submission <- data.frame(PassengerId = test$PassengerId, Survived = lassoOutput)
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logitWithLasso.csv', row.names = FALSE)
+#Name: LogisticRegression.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: base#
+#
+rm(list = ls())#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+#
+#Create logistic regression model#
+logModel <- glm(Survived ~ . -PassengerId, data = train, family = binomial)#
+summary(logModel)#
+#
+#Predict output#
+glmProbability <- predict(logModel, newdata = test)#
+summary(glmProbability)#
+#
+glmOutput <- ifelse(glmProbability < 0.5, 0, 1)#
+table(glmOutput)#
+#
+#Create submission file#
+submission <- data.frame(PassengerId = test$PassengerId, Survived = glmOutput)#
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logisticRegression.csv', row.names = FALSE)
+#Name: LogisticRegression.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: base#
+#
+rm(list = ls())#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv')#
+#
+#Create logistic regression model#
+logModel <- glm(Survived ~ . -PassengerId, data = train, family = binomial)#
+summary(logModel)#
+#
+#Predict output#
+glmProbability <- predict(logModel, newdata = test)#
+summary(glmProbability)#
+#
+glmOutput <- ifelse(glmProbability < 0.5, 0, 1)#
+table(glmOutput)#
+#
+#Create submission file#
+submission <- data.frame(PassengerId = test$PassengerId, Survived = glmOutput)#
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logisticRegression.csv', row.names = FALSE)
+rm(list = ls())#
+library(randomForest)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv')#
+train$Survived <- as.factor(train$Survived)#
+#
+#Find optimal mtry with ntree = 2000#
+mtries <- tunerf(x = train[, !(colnames(train) %in% c('PassengerId', 'Survived'))], y = train$Survived, ntreeTry = 2000)
+mtries <- tuneRF(x = train[, !(colnames(train) %in% c('PassengerId', 'Survived'))], y = train$Survived, ntreeTry = 2000)
+optimumMtry <- 2
+#Name: LogitWithLasso.R#
+#Date: Oct 14th, 2015#
+#Purpose: Create simple classification model on pre-processed data and predict output of test data#
+#Data: Can be downloaded from - #
+#https://www.kaggle.com/c/titanic/data#
+#packages used: glmnet, caret#
+#
+rm(list = ls())#
+library(glmnet)#
+library(caret)#
+#read pre-processed data#
+train <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/train.csv')#
+test <- read.csv('/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/data/test.csv')#
+#
+#Combine train and test datasets#
+test$Survived <- NA#
+all <- rbind(train, test)#
+#
+#Create dummy variables#
+dummy <- dummyVars(~ .-Survived, data = all, levelsOnly = TRUE, fullRank = TRUE)#
+dummyData <- predict(dummy, newdata = all)#
+fullData <- as.data.frame(cbind(dummyData, Survived = all$Survived))#
+#
+#Split train and test data sets#
+train <- subset(fullData, !is.na(fullData$Survived))#
+test <- subset(fullData, is.na(fullData$Survived))#
+test$Survived <- NULL#
+train$Survived <- as.factor(train$Survived)#
+#
+#Find optimal value of lambda#
+set.seed(10)#
+x_mat = as.matrix(train[, !(colnames(train) %in% c('PassengerId', 'Survived'))])#
+cv.glmnet(x = x_mat, y = train$Survived, family = 'binomial', type.measure = 'class', nfolds = 10)#
+minLambda <- 0.0009162309#
+#
+#Build logistic regression with lasso #
+lassoModel <- glmnet(x = x_mat, y = train$Survived, family = 'binomial', alpha = 1, lambda = 0.0009162309)#
+print(lassoModel)#
+#
+#Predict on test data#
+x_mat_test <- as.matrix(test[, colnames(test) != 'PassengerId'])#
+lassoPredictions <- predict(lassoModel, x_mat_test, type = 'response')#
+summary(lassoPredictions)#
+#
+lassoOutput <- ifelse(lassoPredictions < 0.5, 0, 1)#
+table(lassoOutput)
+str(lassoOutput)
+head(as.vector(lassoOutput))
+submission <- data.frame(PassengerId = test$PassengerId, Survived = as.vector(lassoOutput))
+head(submission)
+write.csv(submission, '/Users/admin/Documents/DSCompetitions/Kaggle-Titanic/version3/submission/logitWithLasso.csv', row.names = FALSE)
+library(cvTools)
+install.packages('cvTools')
+library(cvTools)
+library(Metrics)
+methods(Metrics)
+ls(getNamespace('Metrics'), all.names = TRUE)
+ce(0, 1)
+ce(1, 0)
+ce(0, 0)
+ce(1, 1)
+yp <- sample(0:2,50,replace=TRUE)
+yt <- sample(0:2,50,replace=TRUE)
+ce(yp, yt)
+ll(yp, yt)
+mae(yp, yt)
+mse(yp, yt)
+rmse(yp, yt)
+cor(1, 1)
+cor(x=c(1, 1, 1), y=c(1, 1, 1))
+cor(x=c(1, 1, 1), y=c(1, 1, 2))
+cor(x=c(1, 1, 3), y=c(1, 1, 2))
+cor(x=c(1, 1, 2), y=c(1, 1, 2))
+cor(x=c(1, 1, 2), y=c(2, 1, 1))
+install.packages('akima')
+install.packages(c('chron', 'lme4'))
+install.packages(c('mcmc', 'odesolve', 'spdep', 'spastat', 'tree'))
+library(MASS)
+attach(bacteria)
+str(bacteria)
+head(bacteria)
+fix(bacteria)
+objects()
+search()
+library(help = cvTools)
+library(help=xgBoost)
+library(xgBoost)
+library(help = xgboost)
+library(xgboost)
+library(help = xgboost)
+exp(-1)
+exp(1)
+exp(-100000000)
+exp(100000000)
+#create a toy data set of customer ratings#
+set.seed(851982)#
+toy.data <- matrix(data = sample(c(-1, 0, 1), size = 24, replace = TRUE), nrow = 4, ncol = 6)#
+colnames(toy.data) <- c('P1', 'P2', 'P3', 'P4', 'P5', 'P6')#
+row.names(toy.data) <- c('U1', 'U2', 'U3', 'U4')
+toy.data
+cust.distances <- toy.matrix %*% t(toy.matrix)
+cust.distances <- toy.data %*% t(toy.data)
+cust.distances
+U1_U4.dist <-  sqrt(sum((toy.data[1,] - toy.data[4,]) ^ 2))
+U1_U4.dist
+U1_U4.dist <-  sqrt(sum((cust.distances[1,] - cust.distances[4,]) ^ 2))
+U1_U4.dist
+cust.distances <- dist(cust.cor, method = 'euclidean')
+cust.cor <- toy.data %*% t(toy.data)
+cust.distances <- dist(cust.cor, method = 'euclidean')
+cust.distances
+toy.mds <- cmdscale(d = cust.distances, k = 3)
+plot(toy.mds, type = 'n')
+toy.mds <- cmdscale(d = cust.distances, k = 2)
+plot(toy.mds, type = 'n')
+text(toy.mds, c('U1', 'U2', 'U3', 'U4'))
+toy.mds <- cmdscale(d = cust.distances, k = 2)#
+text(toy.mds, c('U1', 'U2', 'U3', 'U4'))#
+plot(toy.mds, type = 'n')
+plot(toy.mds)
+text(toy.mds, c('U1', 'U2', 'U3', 'U4'))
+toy.mds <- cmdscale(d = cust.distances, k = 3)
+plot(toy.mds)
+text(toy.mds, c('U1', 'U2', 'U3', 'U4'))
+toy.mds <- cmdscale(d = cust.distances, k = 2)
+plot(toy.mds)
+text(toy.mds, c('U1', 'U2', 'U3', 'U4'))
+install.packages('foreign')
+install.packages('foreign')
+library(foreign)
+getwd()
+setwd('/Users/admin/Documents/GitHubCode/MLForHackersCode/Ch09-MDS-VisuallyExploringUSSenatorSimilarity')
+getwd()
+data.dir <- 'data/'
+list.files(data.dir)
+rollcall.data <- lapply(data.files, function(filename) {read.dta(paste0(data.dir, filename))}, convert.factors = FALSE)
+data.files <- list.files(data.dir)
+rollcall.data <- lapply(data.files, function(filename) {read.dta(paste0(data.dir, filename))}, convert.factors = FALSE)
+rollcall.data <- lapply(data.files, function(filename) {read.dta(paste0(data.dir, filename), convert.factors = FALSE)})
+str(rollcall.data[[1]])
+rollcall.simplified <- function(df){#
+	no.pres <- subset(df, state < 99)#
+	for (i in 1:ncol(no.pres)){#
+		#group all Yeas#
+		no.pres[, i] <- ifelse(no.pres[,i] > 1 & no.pres[, i] < 4, 1, no.pres[, i])#
+		#group all Nays#
+		no.pres[, i] <- ifelse(no.pres[,i] > 3 & no.pres[, i] < 7, -1, no.pres[, i])#
+		#group all non-voting counts#
+		no.pres[, i] <- ifelse(no.pres[,i] > 6, 0, no.pres[, i])#
+	}#
+	return(as.matrix(no.pres[, 10:ncol(no.pres)]))#
+}
+rollcall.simple <- lapply(rollcall.data, rollcall.simplified)
+rollcall.dist <- lapply(rollcall.simple, function(mat) {dist(x = (mat %*% t(mat)), method = 'euclidean')})
+rollcall.mds <- lapply(rollcall.dist, function(d) as.data.frame(cmdscale(d, k = 2) * -1))
+str(rollcall.mds)
+toy.mds
+length(rollcall.mds)
+c <- rollcall.data[[1]]
+c <- subset(c, state < 99)
+head(congress)
+head(c)
+sample <- 'SHELBY, RIC'
+strsplit(sample, '[,]')
+strsplit(sample, '[,]')[[1]]
+strsplit(sample, '[,]')[[1]][1]
+strsplit(sample, ',')[[1]][1]
+for (i in 1:length(rollcall.mds)){#
+	#name columns of rollcall.mds#
+	names(rollcall.mds[[i]]) <- c('x', 'y')#
+	#subset rollcall.data to exclude VP votes#
+	congress <- subset(rollcall.data[[i]], state < 99)#
+	#get first names of all senators#
+	sen.names <- sapply(as.character(congress$name), function(name) strsplit(name, '[,]')[[1]][1])#
+	#add senator names, party affiliations and congress numbers to rollcall.mds#
+	rollcall.mds[[i]] <- transform(rollcall.mds[[i]], name = sen.names, party = as.factor(congress$party), congress = congress.num[i])#
+}
+congress.num <- 101:111#
+for (i in 1:length(rollcall.mds)){#
+	#name columns of rollcall.mds#
+	names(rollcall.mds[[i]]) <- c('x', 'y')#
+	#subset rollcall.data to exclude VP votes#
+	congress <- subset(rollcall.data[[i]], state < 99)#
+	#get first names of all senators#
+	sen.names <- sapply(as.character(congress$name), function(name) strsplit(name, '[,]')[[1]][1])#
+	#add senator names, party affiliations and congress numbers to rollcall.mds#
+	rollcall.mds[[i]] <- transform(rollcall.mds[[i]], name = sen.names, party = as.factor(congress$party), congress = congress.num[i])#
+}
+head(rollcall.mds[[1]])
+library(ggplot2)
+cong.101 <- rollcall.mds[[1]]
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+scale_size(to = c(2, 2), legend = FALSE) + #
+scale_alpha(legend = FALSE) + theme_bw() + #
+opts(axis.ticks = theme_blank(), axis.text.x = theme_blank(), axis.text.y = theme_blank(), title = 'Roll Call Vote MDS Clustering for 101st US Senate', panel.grid.major = theme_blank()) +#
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c(100, 200, 328), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+cong.101 <- rollcall.mds[[1]]#
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+scale_size(legend = FALSE) + #
+scale_alpha(legend = FALSE) + theme_bw() + #
+opts(axis.ticks = theme_blank(), axis.text.x = theme_blank(), axis.text.y = theme_blank(), title = 'Roll Call Vote MDS Clustering for 101st US Senate', panel.grid.major = theme_blank()) +#
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c(100, 200, 328), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+cong.101 <- rollcall.mds[[1]]#
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+scale_size(guide = 'none') + #
+scale_alpha(legend = FALSE) + theme_bw() + #
+opts(axis.ticks = theme_blank(), axis.text.x = theme_blank(), axis.text.y = theme_blank(), title = 'Roll Call Vote MDS Clustering for 101st US Senate', panel.grid.major = theme_blank()) +#
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c(100, 200, 328), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+#plot data for 101st congress#
+cong.101 <- rollcall.mds[[1]]#
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+scale_alpha(legend = FALSE) + theme_bw() + #
+opts(axis.ticks = theme_blank(), axis.text.x = theme_blank(), axis.text.y = theme_blank(), title = 'Roll Call Vote MDS Clustering for 101st US Senate', panel.grid.major = theme_blank()) +#
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c(100, 200, 328), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+cong.101 <- rollcall.mds[[1]]#
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+theme_bw() + #
+opts(axis.ticks = theme_blank(), axis.text.x = theme_blank(), axis.text.y = theme_blank(), title = 'Roll Call Vote MDS Clustering for 101st US Senate', panel.grid.major = theme_blank()) +#
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c(100, 200, 328), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+cong.101 <- rollcall.mds[[1]]#
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+theme_bw() + #
+theme(axis.ticks = theme_blank(), axis.text.x = theme_blank(), axis.text.y = theme_blank(), title = 'Roll Call Vote MDS Clustering for 101st US Senate', panel.grid.major = theme_blank()) +#
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c(100, 200, 328), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+#plot data for 101st congress#
+cong.101 <- rollcall.mds[[1]]#
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+theme_bw() + #
+theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), title = 'Roll Call Vote MDS Clustering for 101st US Senate', panel.grid.major = element_blank()) +#
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c(100, 200, 328), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+cong.101 <- rollcall.mds[[1]]#
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+theme_bw() + #
+theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), panel.grid.major = element_blank()) +element_text(title = 'Roll Call Vote MDS Clustering for 101st US Senate') + #
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c(100, 200, 328), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+cong.101 <- rollcall.mds[[1]]#
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+theme_bw() + #
+theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), panel.grid.major = element_blank()) +element_text('Roll Call Vote MDS Clustering for 101st US Senate') + #
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c(100, 200, 328), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+cong.101 <- rollcall.mds[[1]]#
+base.101 <- ggplot(cong.101, aes(x = x, y = y)) + #
+theme_bw() + #
+theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), panel.grid.major = element_blank()) + ggtitle('Roll Call Vote MDS Clustering for 101st US Senate') + #
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'))
+print(base.101 + geom_point(aes(shape = party, alpha = 0.75, size = 2)))#
+print(base101 + geom_text(aes(color = party, alpha = 0.75, label = cong.101$name, size = 2)))
+all.mds <- do.call(rbind, rollcall.mds)
+print(base.101 + geom_point(aes(shape = party, alpha = 0.75, size = 2)))#
+print(base.101 + geom_text(aes(color = party, alpha = 0.75, label = cong.101$name, size = 2)))
+#create plot of all congresses#
+all.mds <- do.call(rbind, rollcall.mds)#
+all.plot <- ggplot(all.mds, aes(x = x, y = y)) + #
+geom_point(aes(shape = party, alpha = 0.75, size = 2)) + #
+theme_bw() + #
+theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank(), panel.grid.major = element_blank()) + ggtitle('Roll Call Vote MDS Clustering for US Senate (101st to 111th Congress)') + #
+xlab('') + ylab('') + #
+scale_shape(name = 'Party', breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.'), solid = FALSE) +#
+scale_color_manual(name = 'Party', values = c('100' = 'blue', '200' = 'red', '328' = 'black'), breaks = c('100', '200', '328'), labels = c('Dem.', 'Rep.', 'Ind.')) +#
+facet_wrap( ~ congress)
+all.plot

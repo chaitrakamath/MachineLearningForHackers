@@ -1,0 +1,450 @@
+plot(lmModel, which = 2)
+plot(lmModel, which = 3)
+plot(lmModel, which = 4)
+plot(lmModel, which = 5)
+plot(lmModel, which = 6)
+plot(lmModel, which = 7)
+x <- 1:10
+y <- x ^ 2
+fitted.regression <- lm(y ~ x)
+plot(fitted.regression, which = 1)
+errors <- residuals(fitted.regression)
+squared.error <- errors ^ 2
+sum(squared.error)
+errors <- residuals(fitted.regression)
+squared.error <- errors ^ 2
+mean(squared.error)
+errors <- residuals(fitted.regression)#
+squared.error <- errors ^ 2#
+mse <- mean(squared.error)#
+sqrt(mse)
+error.without.grouping <- sqrt(mean((ages$AgeAtDeath - prediction.without.grouping) ^ 2))
+error.without.grouping
+mean(heights.weights$Weight)
+mean.rmse <- sqrt(mean((heights.weights$Weight - mean(heights.weights$Weight)) ^ 2))
+mean.rmse
+model.rmse <- sqrt(mse) #computed from above
+r2 <- 1 / (model.rmse / mean.rmse)
+r2
+r2 <- 1 - (model.rmse / mean.rmse)
+r2
+topSites <- read.csv('top_1000_sites.tsv', sep = '\t', stringsAsFactors = FALSE)
+head(topSites)
+ggplot(topSites, aes(x = UniqueVisitors, y = PageViews)) + geom_point()
+ggplot(topSites, aes(x = PageViews)) + geom_density()
+ggplot(topSites, aes(x = log(PageViews))) + geom_density()
+ggplot(topSites, aes(x = log(UniqueVisitors), y = log(PageViews))) + geom_point()
+ggplot(topSites, aes(x = log(UniqueVisitors), y = log(PageViews))) + geom_point() + geom_smooth(method = 'lm')
+ggplot(topSites, aes(x = log(UniqueVisitors), y = log(PageViews))) + geom_point() + geom_smooth(method = 'lm', se = FALSE)
+lm.fit <- lm(PageViews ~ UniqueVisitors, data = topSites)
+summary(lm.fit)
+lm.fit <- lm(log(PageViews) ~ log(UniqueVisitors), data = topSites)
+summary(lm.fit)
+colnames(topSites)
+lm.fit <- lm(log(PageViews) ~ log(UniqueVisitors) + HasAdvertising + InEnglish, data = topSites)
+summary(lm.fit)
+unique(topSites$InEnglish)
+ggplot(data.frame(X = x, Y = y), aes(x = X, y = Y)) + geom_point() + grom_smooth(method = 'lm', se = FALSE)
+x <- 1:10
+y < x^2
+y
+y < x ^ 2
+y <- x ^ 2
+ggplot(data.frame(X = x, Y = y), aes(x = X, y = Y)) + geom_point() + geom_smooth(method = 'lm', se = FALSE)
+cor(x, y)
+coef(lm(scale(y) ~ scale(x)))
+set.seed(1)#
+x <- seq(-10, 10, by = 0.01)#
+y <- 1 - x ^2 + rnorm(length(x), 0, 5)
+ggplot(data.frame(X = x, Y = y), aes(x = X, y = Y)) + geom_point() + geom_smooth(se = FALSE)
+ggplot(data.frame(X = x, Y = y), aes(x = X, y = Y)) + geom_point() + geom_smooth(method = lm, se = FALSE)
+ggplot(data.frame(X = squared.x, Y = y), aes(x = X, y = Y)) + geom_point() + geom_smooth(method = lm, se = FALSE)
+squared.x <- x^2
+ggplot(data.frame(X = squared.x, Y = y), aes(x = X, y = Y)) + geom_point() + geom_smooth(method = lm, se = FALSE)
+summary(lm(y ~ x))$r.squared
+summary(lm(y ~ x.squared))$r.squared
+summary(lm(y ~ squared.x))$r.squared
+x <- seq(0, 1, by = 0.01)#
+y <- sin(2 * pi * x) + rnorm(length(x), 0, 0.1)#
+#
+df <- data.frame(X = x, Y = y)
+ggplot(df, aes(x = X, y = Y)) + geom_point()
+lm.fit <- lm(Y ~ X, data = df)
+summary(lm.fit)
+ggplot(df, aes(x = X, y = Y)) + geom_point() + geom_smooth(method = lm, se = FALSE)
+df <- transform(df, X2 <- X ^ 2)#
+df <- transform(df, X3 <- X ^ 3)
+lm.fit <- lm(Y ~ ., data = df)
+summary(lm.fit)
+str(df)
+df <- transform(df, X2 <- X ^ 2)
+df <- transform(df, X2 = X ^ 2)
+df <- transform(df, X3 = X ^ 3)
+str(df)
+lm.fit <- lm(Y ~ ., data = df)
+summary(lm.fit)
+df <- transform(df, predictedY = predict(lm.fit))
+str(df)
+ggplot(df, aes(x = X, y = predictedY)) + geom_point() + geom_line()
+x <- seq(0, 1, by = 0.01)#
+y <- sin(2 * pi * x) + rnorm(length(x), 0, 0.1)#
+#
+df <- data.frame(X = x, Y = y)
+poly(X, degree = 1)
+poly(x, degree = 1)
+poly(x, degree = 2)
+cbind(poly(x, degree = 2), X = x, X2 = x ^2)
+poly1.fit <- lm(Y ~ poly(X, degree = 1), data = df)
+summary(poly1.fit)
+ggplot(poly1.fit, aes(x = X, y = predict(poly1.fit))) + geom_point() + geom_line()
+poly3.fit <- lm(Y ~ poly(X, degree = 3), data = df)
+summary(poly3.fit)
+ggplot(poly3.fit, aes(x = X, y = predict(poly3.fit))) + geom_point() + geom_line()
+poly5.fit <- lm(Y ~ poly(X, degree = 5), data = df)
+summary(poly5.fit)
+ggplot(poly5.fit, aes(x = X, y = predict(poly5.fit))) + geom_point() + geom_line()
+poly25.fit <- lm(Y ~ poly(X, degree = 25), data = df)
+summary(poly25.fit)
+ggplot(poly25.fit, aes(x = X, y = predict(poly25.fit))) + geom_point() + geom_line()
+df <- transform(df, predictY1 = predict(poly1.fit))
+ggplot(poly1.fit, aes(x = X, y = predictY1)) + geom_point() + geom_line()
+str(df)
+ggplot(poly1.fit, aes(x = X, y = predictY1)) + geom_point() + geom_line()
+ggplot(df, aes(x = X, y = predict(poly1.fit))) + geom_point() + geom_line()
+x <- seq(0, 1, by = 0.01)#
+y <- sin(2 * pi * x) + rnorm(length(x), 0, 0.1)#
+#
+df <- data.frame(X = x, Y = y)#
+#
+poly1.fit <- lm(Y ~ poly(X, degree = 1), data = df)#
+summary(poly1.fit) #57% of variance in data explained by model#
+ggplot(df, aes(x = X, y = predict(poly1.fit))) + geom_point() + geom_line()
+poly3.fit <- lm(Y ~ poly(X, degree = 3), data = df)#
+summary(poly3.fit) #97% of variance in data explained by model#
+ggplot(df, aes(x = X, y = predict(poly3.fit))) + geom_point() + geom_line()
+poly5.fit <- lm(Y ~ poly(X, degree = 5), data = df)#
+summary(poly5.fit) #97% of variance in data explained by model#
+ggplot(df, aes(x = X, y = predict(poly5.fit))) + geom_point() + geom_line()
+poly25.fit <- lm(Y ~ poly(X, degree = 25), data = df)#
+summary(poly25.fit) #98% of variance in data explained by model#
+ggplot(df, aes(x = X, y = predict(poly25.fit))) + geom_point() + geom_line()
+n <- length(x)#
+indices <- sort(sample(1:n, round(n * 0.5)))
+x.train <- x[indices]
+y.train <- y[indices]
+x.test <- x[-indices]
+y.test <- y[-indices]
+training.df <- data.frame(X = x.train, Y = y.train)
+testing.df <- data.frame(X = x.test, Y = y.test)
+rmse <- function(y, y.hat){#
+	return (sqrt(mean((y - y.hat) ^ 2)))#
+}
+performance <- data.frame()#
+#
+for (d in 1:12){#
+	poly.fit <- lm(Y ~ poly(X, d), data = training.df)#
+	performance <- rbind(performance, data.frame(Degree = d, Data = 'Train', RMSE = rmse(training.df$Y, predict(poly.fit))))#
+	performance <- rbind(performance, data.frame(Degree = d, Data = 'Test', RMSE = rmse(testing.df$Y, predict(poly.fit, newdata = test.df))))#
+}
+performance <- data.frame()#
+#
+for (d in 1:12){#
+	poly.fit <- lm(Y ~ poly(X, d), data = training.df)#
+	performance <- rbind(performance, data.frame(Degree = d, Data = 'Train', RMSE = rmse(training.df$Y, predict(poly.fit))))#
+	performance <- rbind(performance, data.frame(Degree = d, Data = 'Test', RMSE = rmse(testing.df$Y, predict(poly.fit, newdata = testing.df))))#
+}
+performance
+ggplot(performance, aes(x = Degree, y = RMSE, lineType = Data)) + geom_point() + geom_line()
+ggplot(performance, aes(x = Degree, y = RMSE, lineType = Data, fill = Data)) + geom_point() + geom_line()
+ggplot(performance, aes(x = Degree, y = RMSE, fill = Data)) + geom_point() + geom_line()
+ggplot(performance, aes(x = Degree, y = RMSE, fill = Data)) + geom_point() + geom_line(colour = Data)
+ggplot(performance, aes(x = Degree, y = RMSE, lineType = Data)) + geom_point() + geom_line(aes(colour = Data))
+lm.fit <- lm(y ~ x)
+coef(lm.fit)
+l1.norm.complexity <- sum(coef(lm.fit) ^ 2)
+l2.norm.complexity <- sum(coef(lm.fit) ^ 2)
+l1.norm.complexity <- sum(abs(coef(lm.fit)))
+l2.norm.complexity
+l1.norm.complexity
+library(glmnet)
+x <- seq(0, 1, by = 0.01)#
+y <- sin(2 * pi * x) + rnorm(length(x), 0, 0.01)#
+#
+n <- length(x)#
+indices <- sort(sample(1:n, round(0.5 * n)))#
+#
+x.train <- x[indices]#
+y.train <- y[indices]#
+#
+x.test <- x[indices]#
+y.test <- y[indices]#
+#
+train.df <- data.frame(X = x.train, Y = y.train)#
+test.df <- data.frame(X = x.test, Y = y.test)#
+#
+rmse <- function(y, y.hat){#
+	return (sqrt(mean((y - y.hat) ^ 2)))#
+}
+performance <- data.frame()
+for (lambda in lambdas){#
+	performance <- rbind(performance, data.frame(Lambda = lambda, RMSE = rmse(test.df$Y, with(test.df, predict(glmnet.fit, newdata = test.df, s = lambda)))))#
+}
+library(glmnet)#
+glmnet.fit <- with (train.df, glmnet(x = poly(X, degree = 10), y = Y))#
+lambdas <- glmnet.fit$lambdas
+performance <- data.frame()#
+for (lambda in lambdas){#
+	performance <- rbind(performance, data.frame(Lambda = lambda, RMSE = rmse(test.df$Y, with(test.df, predict(glmnet.fit, newdata = test.df, s = lambda)))))#
+}
+performance
+with(test.df, predict(glmnet.fit, test.df))
+with(test.df, predict(glmnet.fit, poly(X, degree = 10), s = 0.05))
+with(test.df, predict(glmnet.fit, as.matrix(test.df), s = 0.05))
+as.matrix(test.df)
+performance <- data.frame()#
+for (lambda in lambdas){#
+	performance <- rbind(performance, data.frame(Lambda = lambda, RMSE = rmse(test.df$Y, with(test.df, predict(glmnet.fit, newdata = poly(X, 10), s = lambda)))))#
+}
+performance
+predict(glmnet.fit, newdata = poly(X, 10), s = 0.05)
+predict(glmnet.fit, newx = poly(X, 10), s = 0.05)
+predict(glmnet.fit, newx = poly(test.df$X, 10), s = 0.05)
+performance <- data.frame()#
+for (lambda in lambdas){#
+	performance <- rbind(performance, data.frame(Lambda = lambda, RMSE = rmse(test.df$Y, with(test.df, predict(glmnet.fit, newx = poly(X, 10), s = lambda)))))#
+}
+performance
+with(test.df, predict(glmnet.fit, newx = poly(X, 10), s = lambda)
+)
+lambda
+with(test.df, predict(glmnet.fit, newx = poly(X, 10), s = lambda))
+s
+rm(list = ls())
+#set up data for regularization#
+x <- seq(0, 1, by = 0.01)#
+y <- sin(2 * pi * x) + rnorm(length(x), 0, 0.01)#
+#
+n <- length(x)#
+indices <- sort(sample(1:n, round(0.5 * n)))#
+#
+x.train <- x[indices]#
+y.train <- y[indices]#
+#
+x.test <- x[indices]#
+y.test <- y[indices]#
+#
+train.df <- data.frame(X = x.train, Y = y.train)#
+test.df <- data.frame(X = x.test, Y = y.test)#
+#
+rmse <- function(y, y.hat){#
+	return (sqrt(mean((y - y.hat) ^ 2)))#
+}
+library(glmnet)#
+glmnet.fit <- with (train.df, glmnet(x = poly(X, degree = 10), y = Y))#
+lambdas <- glmnet.fit$lambdas
+performance <- data.frame()
+for (lambda in lambdas){#
+	performance <- rbind(performance, data.frame(Lambda = lambda, RMSE = rmse(test.df$Y, with(test.df, predict(glmnet.fit, newx = poly(X, 10), s = lambda)))))#
+}
+performance
+s
+?s()
+?predict()
+lambdas
+#Implement lm with regularization using glmnet package#
+library(glmnet)#
+glmnet.fit <- with (train.df, glmnet(x = poly(X, degree = 10), y = Y))#
+lambdas <- glmnet.fit$lambdas
+lambdas
+glmnet.fit
+lambdas <- glmnet.fit$Lambda
+lambdas
+names(glmnet.fit)
+lambdas <- glmnet.fit$lambda
+lambdas
+#set up data for regularization#
+x <- seq(0, 1, by = 0.01)#
+y <- sin(2 * pi * x) + rnorm(length(x), 0, 0.01)#
+#
+n <- length(x)#
+indices <- sort(sample(1:n, round(0.5 * n)))#
+#
+x.train <- x[indices]#
+y.train <- y[indices]#
+#
+x.test <- x[indices]#
+y.test <- y[indices]#
+#
+train.df <- data.frame(X = x.train, Y = y.train)#
+test.df <- data.frame(X = x.test, Y = y.test)#
+#
+rmse <- function(y, y.hat){#
+	return (sqrt(mean((y - y.hat) ^ 2)))#
+}
+library(glmnet)
+glmnet.fit <- with (train.df, glmnet(x = poly(X, degree = 10), y = Y))
+lambdas <- glmnet.fit$lambda
+performance <- data.frame()
+for (lambda in lambdas){
+performance <- rbind(performance, data.frame(Lambda = lambda, RMSE = rmse(test.df$Y, with(test.df, predict(glmnet.fit, newx = poly(X, 10), s = lambda)))))
+}
+performance
+ggplot(performance, aes(x = Lambda, y = RMSE)) + geom_point()
+ggplot(performance, aes(x = Lambda, y = RMSE)) + geom_point() + geom_line()
+best.lambda <- performance$Lambda[performance$RMSE == min(performance$RMSE)]
+best.lambda
+min(performance$RMSE)
+glmnet.fit <- with (df, glmnet(poly(X, 10), Y,))
+glmnet.fit <- with (df, glmnet(poly(X, degree = 10), Y))
+df
+df <- data.frame(X = x, Y = y)
+df
+df <- data.frame(X = x, Y = y)
+glmnet.fit <- with (df, glmnet(poly(X, degree = 10), Y))
+glmnet.fit
+coef(glmnet.fit, s = best.lambda)
+best.lambda
+coef(glmnet.fit, s = best.lambda)
+getwd()
+setwd('/Users/admin/Documents/GitHubCode/MLForHackersCode/Ch06-TextRegularization')
+ranks <- read.csv('/data/oreilly.csv', stringsAsFactors = FALSE)
+ranks <- read.csv('data/oreilly.csv', stringsAsFactors = FALSE)
+str(ranks)
+library(tm)
+document.description <- data.frame(text = ranks$Long.Desc)
+str(document.description)
+head(document.description)
+rownames(document.description)
+corpus <- Corpus(VectorSource(document.description$text))
+corpus
+corpus <- Corpus(DataframeSource(document.description$text))
+corpus <- Corpus(DataframeSource(document.description))
+corpus
+corpus <- tm_map(corpus, tolower)
+corpus <- Corpus(VectorSource(document.description$text))
+corpus <- tm_map(corpus, tolower)
+corpus <- tm_map(corpus, stripWhitespace)
+corpus <- tm_map(corpus, removeWords, stopwords('en'))
+dtm <- DocumentTermMatrix(corpus)
+corpus
+DocumentTermMatrix(corpus)
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- Corpus(VectorSource(document.description$text))
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- tm_map(corpus, stripWhitespace)
+corpus <- tm_map(corpus, removeWords, stopwords('en'))
+dtm <- DocumentTermMatrix(corpus)
+x <- as.matrix(dtm)
+colnames(ranks)
+y <- ranks$Rank
+set.seed(1)#
+performance <- data.frame()#
+#
+for (lambda in c(0.1, 0.25, 0.5, 1, 2, 5)){#
+	for (i in 1:50){#
+		#create indices for training and testing data#
+		indices <- sample(1:100, 80)#
+		#split train and test data sets#
+		x.train <- x[indices]#
+		y.train <- y[indices]#
+		x.test <- x[-indices]#
+		y.test <- y[-indices]#
+		#implement glmnet model, predict on test data and compute error#
+		glmnet.fit <- glmnet(x.train, y.train)#
+		y.hat <- predict(glmnet.fit, newx = x.test, s = lambda)#
+		rmse <- sqrt(mean((y.test - y.hat) ^ 2))#
+		#add new row of data to performance df#
+		performance <- rbind(performance, data.frame(Lambda = lambda, Iteration = i, RMSE = rmse))#
+	}#
+}
+indices <- sample(1:100, 80)
+x.train <- x[indices]#
+		y.train <- y[indices]#
+		x.test <- x[-indices]#
+		y.test <- y[-indices]
+x.train
+y.train
+x
+x.train <- x[indices, ]#
+		y.train <- y[indices]#
+		x.test <- x[-indices, ]#
+		y.test <- y[-indices]
+x.train
+for (lambda in c(0.1, 0.25, 0.5, 1, 2, 5)){#
+	for (i in 1:50){#
+		#create indices for training and testing data#
+		indices <- sample(1:100, 80)#
+		#split train and test data sets#
+		x.train <- x[indices, ]#
+		y.train <- y[indices]#
+		x.test <- x[-indices, ]#
+		y.test <- y[-indices]#
+		#implement glmnet model, predict on test data and compute error#
+		glmnet.fit <- glmnet(x.train, y.train)#
+		y.hat <- predict(glmnet.fit, newx = x.test, s = lambda)#
+		rmse <- sqrt(mean((y.test - y.hat) ^ 2))#
+		#add new row of data to performance df#
+		performance <- rbind(performance, data.frame(Lambda = lambda, Iteration = i, RMSE = rmse))#
+	}#
+}
+ggplot(performance, aes(x = Lambda, y = RMSE)) + stat_summary(fun.data = 'mean_cl_boot', geom = 'errorbar') + stat_summary(fun.data = 'mean_cl_boot', geom = 'point')
+y <- rep(c(1, 0), each = 50)
+y
+regularized.fit <- glmnet(x, y, family = 'binomial')
+regularized.fit
+predict(regularized.fit, newx = x, s = 0.001)
+library(boot)
+inv.logit(predict(regularized.fit, newx = x, s = 0.001))
+performance <- data.frame()#
+set.seed(1)#
+for (i in (1:250)){#
+	#get indices for train and test sets#
+	indices <- sort(sample(1:100, 80))#
+	#split train and test sets#
+	x.train <- x[indices, ]#
+	y.train <- y[indices]#
+	x.test <- x[-indices, ]#
+	y.test <- y[-indices]#
+	#select different lambda values#
+	for (lambda in c(0.0001, 0.001, 0.0025, 0.05, 0.01, 0.025, 0.5, 0.1)) {#
+		#fit the model using glmnet classification#
+		glm.fit <- glmnet(x = x.train, y = y.train, family = 'binomial')#
+		#make predictions in terms of probabilites#
+		predictedY <- inv.logit(predict(glm.fit, newx = x.test, s = lambda))#
+		y.hat <- ifelse(predictedY < 0.5, 0, 1)#
+		#compute classification error#
+		error <- mean(y.hat != test.y)#
+		#add all values to performance data frame#
+		performance <- rbind(performance, data.frame(Iteration = i, Lambda = lambda, Error = error))		#
+	}#
+}
+performance <- data.frame()#
+set.seed(1)#
+for (i in (1:250)){#
+	#get indices for train and test sets#
+	indices <- sort(sample(1:100, 80))#
+	#split train and test sets#
+	x.train <- x[indices, ]#
+	y.train <- y[indices]#
+	x.test <- x[-indices, ]#
+	y.test <- y[-indices]#
+	#select different lambda values#
+	for (lambda in c(0.0001, 0.001, 0.0025, 0.05, 0.01, 0.025, 0.5, 0.1)) {#
+		#fit the model using glmnet classification#
+		glm.fit <- glmnet(x = x.train, y = y.train, family = 'binomial')#
+		#make predictions in terms of probabilites#
+		predictedY <- inv.logit(predict(glm.fit, newx = x.test, s = lambda))#
+		y.hat <- ifelse(predictedY < 0.5, 0, 1)#
+		#compute classification error#
+		error <- mean(y.hat != y.test)#
+		#add all values to performance data frame#
+		performance <- rbind(performance, data.frame(Iteration = i, Lambda = lambda, Error = error))		#
+	}#
+}
+#plot the output#
+ggplot(performance, aes(x = Lamda, y = Error)) + stat_summary(fun.data = 'mean_cl_boot', geom = 'errorbar')+#
+stat_summary(fun.data = 'mean_cl_boot', geom = 'point') + scale_x_log10()
+performance
+ggplot(performance, aes(x = Lambda, y = Error)) + stat_summary(fun.data = 'mean_cl_boot', geom = 'errorbar')+
+stat_summary(fun.data = 'mean_cl_boot', geom = 'point') + scale_x_log10()
